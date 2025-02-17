@@ -38,10 +38,11 @@
       <ul>
         {% for attribute in common_attributes[:20] %}
           <li>
-            {{ attribute.name }} - User 1 Scrobbles: {{ attribute.playcount }} | User 2 Scrobbles: {{ attribute.playcount }}
+            {{ attribute.name }} - {{ request.form['user1'] }} Scrobbles: {{ attribute.user1_plays }} | {{ request.form['user2'] }} Scrobbles: {{ attribute.user2_plays }}
           </li>
         {% endfor %}
-      </ul>      
+      </ul>
+      
     </div>
     {% endif %}
   </div>
