@@ -7,44 +7,93 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <div class="container mt-5">
-    <h1 style="color:#D51007">BlendFM</h1>
-    <form method="POST">
-      <div class="row">
-        <div class="col">
-          <input type="text" class="form-control" name="user1" placeholder="Your username" required>
+    <div class="container mt-5">
+        <h1 style="color:#D51007">BlendFM</h1>
+        
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
         </div>
-        <div class="col">
-          <input type="text" class="form-control" name="user2" placeholder="Friend's username" required>
+        {% endif %}
+        
+        {% if message %}
+        <div class="alert alert-success" role="alert">
+            {{ message }}
         </div>
-        <div class="col">
-          <select name="category" class="form-select" required>
-            <option value="track">Tracks</option>
-            <option value="artist">Artists</option>
-            <option value="album">Albums</option>
-          </select>
+        {% endif %}
+        
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <input type="text" class="form-control" name="user1" placeholder="Your username" required
+                           value="{{ request.form['user1'] if request.form['user1'] }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" name="user2" placeholder="Friend's username" required
+                           value="{{ request.form['user2'] if request.form['user2'] }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="category" class="form-select" required>
+                        <option value="track" {% if category == 'track' %}selected{% endif %}>Tracks</option>
+                        <option value="artist" {% if category == 'artist' %}selected{% endif %}>Artists</option>
+                        <option value="album" {% if category == 'album' %}selected{% endif %}>Albums</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100" 
+                            style="background-color: #D51007; border-color: #D51007;">
+                        Blendify
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        {% if similarity_percentage is not none %}
+        <div class="mt-5">
+            <h2>Similarity: {{ "%.1f"|format(similarity_percentage) }}%</h2>
+            
+            <h3>Top Common {{ category|capitalize }}s</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>{{ request.form['user1'] }} Rank</th>
+                            <th>{{ request.form['user2'] }} Rank</th>
+                            <th>{{ request.form['user1'] }} Plays</th>
+                            <th>{{ request.form['user2'] }} Plays</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in common_attributes[:20] %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.user1_rank }}</td>
+                            <td>{{ item.user2_rank }}</td>
+                            <td>{{ item.user1_plays }}</td>
+                            <td>{{ item.user2_plays }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if category == 'track' %}
+                {% if logged_in %}
+                <form method="POST" action="{{ url_for('create_playlist') }}">
+                    <input type="hidden" name="user1" value="{{ request.form['user1'] }}">
+                    <input type="hidden" name="user2" value="{{ request.form['user2'] }}">
+                    <input type="hidden" name="category" value="{{ category }}">
+                    <button type="submit" class="btn btn-success mt-3">Create Spotify Playlist</button>
+                </form>
+                {% else %}
+                <a href="{{ url_for('spotify_login') }}" class="btn btn-success mt-3">
+                    Login with Spotify to Create Playlist
+                </a>
+                {% endif %}
+            {% endif %}
         </div>
-        <div class="col">
-          <button type="submit" class="btn btn-primary" style="background-color: #D51007; border-color: #D51007;">Blendify</button>
-        </div>
-      </div>
-    </form>
-    
-    {% if similarity_percentage is not none %}
-    <div class="mt-5">
-      <h2>Similarity between {{ request.form['user1'] }} and {{ request.form['user2'] }}: {{ similarity_percentage }}%</h2>
-      
-      <h3>Top Common {{ request.form['category'].capitalize() }}</h3>
-      <ul>
-        {% for attribute in common_attributes[:20] %}
-          <li>
-            {{ attribute.name }} - {{ request.form['user1'] }} Scrobbles: {{ attribute.user1_plays }} | {{ request.form['user2'] }} Scrobbles: {{ attribute.user2_plays }}
-          </li>
-        {% endfor %}
-      </ul>
-      
+        {% endif %}
     </div>
-    {% endif %}
-  </div>
 </body>
 </html>
