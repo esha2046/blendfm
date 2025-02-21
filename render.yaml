@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: blendfm
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m waitress --listen=0.0.0.0:$PORT app:app
