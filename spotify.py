@@ -9,7 +9,7 @@ load_dotenv()
 
 SPOTIPY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
-SPOTIPY_REDIRECT_URI = "http://127.0.0.1:5000/callback"
+SPOTIPY_REDIRECT_URI = "https://blendfm.onrender.com/callback"
 SCOPE = "playlist-modify-public playlist-modify-private"
 
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
